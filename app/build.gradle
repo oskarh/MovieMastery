@@ -1,0 +1,55 @@
+apply plugin: 'com.android.application'
+
+
+android {
+    compileSdkVersion 20
+    buildToolsVersion "20.0.0"
+
+    defaultConfig {
+        applicationId "org.moviemastery.moviemastery"
+        minSdkVersion 18
+        targetSdkVersion 20
+        versionCode 1
+        versionName "1.0"
+    }
+    buildTypes {
+        release {
+            runProguard false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    dexOptions {
+        preDexLibraries = false
+    }
+
+    packagingOptions {
+        exclude 'META-INF/DEPENDENCIES.txt'
+        exclude 'META-INF/LICENSE.txt'
+        exclude 'META-INF/NOTICE.txt'
+        exclude 'META-INF/NOTICE'
+        exclude 'META-INF/LICENSE'
+        exclude 'META-INF/DEPENDENCIES'
+        exclude 'META-INF/notice.txt'
+        exclude 'META-INF/license.txt'
+        exclude 'META-INF/dependencies.txt'
+        exclude 'META-INF/LGPL2.1'
+    }
+}
+
+apply plugin: 'hugo'
+
+dependencies {
+    compile 'com.google.android.gms:play-services:6.1.71'
+    compile 'com.squareup.retrofit:retrofit:1.7.1'
+    compile 'org.apache.httpcomponents:httpclient-android:4.3.5'
+    compile 'com.fasterxml.jackson.core:jackson-databind:2.3.3'
+    compile 'com.google.guava:guava:18.0'
+    compile 'org.apache.commons:commons-io:1.3.2'
+    compile 'com.jakewharton:butterknife:6.0.0'
+    compile 'uk.co.ribot:easyadapter:1.3.0@aar'
+    compile 'com.beardedhen:androidbootstrap:+'
+    compile('de.keyboardsurfer.android.widget:crouton:1.8.5@aar') {
+        exclude group: 'com.google.android', module: 'support-v4'
+    }
+}
