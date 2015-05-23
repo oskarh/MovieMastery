@@ -1,103 +1,107 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
-    android:layout_height="match_parent" android:paddingLeft="@dimen/activity_horizontal_margin"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    android:paddingBottom="@dimen/activity_vertical_margin"
     tools:context="org.moviemastery.moviemastery.activity.AboutActivity">
 
-    <TextView android:text="About Movie Quiz" android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+    <TextView
         android:id="@+id/aboutLabel"
-        android:textSize="22sp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
+        android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
-        android:layout_alignParentStart="true"
-        android:gravity="center" />
+        android:gravity="center"
+        android:text="About Movie Quiz"
+        android:textSize="22sp" />
 
     <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:text="Movie Quiz is the carpstone project for the Mobile Cloud Computing with Android Coursera specialization."
-        android:layout_marginTop="20dp"
         android:id="@+id/descriptionLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignEnd="@+id/aboutLabel"
+        android:layout_alignParentStart="true"
         android:layout_below="@+id/aboutLabel"
-        android:layout_alignParentStart="true"
-        android:layout_alignEnd="@+id/aboutLabel" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textSize="22sp"
         android:layout_marginTop="20dp"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:text="Open Source libraries"
+        android:text="Movie Quiz is the carpstone project for the Mobile Cloud Computing with Android Coursera specialization."
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    <TextView
         android:id="@+id/openSourceTitelLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentStart="true"
         android:layout_below="@+id/descriptionLabel"
+        android:layout_marginTop="20dp"
         android:gravity="center"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentEnd="true" />
+        android:text="Open Source libraries"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:textSize="22sp" />
 
     <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceMedium"
         android:id="@+id/retrofitLabel"
-        android:layout_marginTop="10dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
         android:layout_below="@+id/openSourceTitelLabel"
-        android:layout_alignParentStart="true"
+        android:layout_marginTop="10dp"
         android:gravity="center"
         android:linksClickable="true"
-        android:text="@string/retrofit_link"/>
+        android:text="@string/retrofit_link"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceMedium"
         android:id="@+id/butterknifeLabel"
-        android:layout_marginTop="10dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
         android:layout_below="@+id/retrofitLabel"
-        android:layout_alignParentStart="true"
-        android:gravity="center"
-        android:linksClickable="true"
-        android:text="@string/butterknife_link"/>
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:id="@+id/guavaLabel"
         android:layout_marginTop="10dp"
-        android:layout_below="@+id/butterknifeLabel"
-        android:layout_alignParentStart="true"
         android:gravity="center"
         android:linksClickable="true"
-        android:text="@string/guava_link"/>
+        android:text="@string/butterknife_link"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <TextView
+        android:id="@+id/guavaLabel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:layout_alignParentStart="true"
+        android:layout_below="@+id/butterknifeLabel"
+        android:layout_marginTop="10dp"
+        android:gravity="center"
+        android:linksClickable="true"
+        android:text="@string/guava_link"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    <TextView
         android:id="@+id/apacheCommonsLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_below="@+id/guavaLabel"
         android:layout_marginTop="10dp"
         android:gravity="center"
         android:linksClickable="true"
         android:text="@string/apache_commons_link"
-        android:layout_below="@+id/guavaLabel"
-        android:layout_alignParentStart="true" />
+        android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <TextView
+        android:id="@+id/easyAdapterLabel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:id="@+id/easyAdapterLabel"
-        android:layout_marginTop="10dp"
+        android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
+        android:layout_below="@+id/apacheCommonsLabel"
+        android:layout_marginTop="10dp"
         android:gravity="center"
         android:linksClickable="true"
         android:text="@string/easy_adapter_link"
-        android:layout_below="@+id/apacheCommonsLabel"
-        android:layout_alignParentLeft="true" />
+        android:textAppearance="?android:attr/textAppearanceMedium" />
 
 </RelativeLayout>

@@ -3,6 +3,7 @@ package org.moviemastery.moviemastery.activity;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -49,6 +50,15 @@ public class OverviewActivity extends Activity implements GameFetcherListener {
         task.execute();
     }
 
+    public boolean onKeyDown(int keyCode, KeyEvent event)
+    {
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+            moveTaskToBack(true);
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
+    }
+
     @DebugLog
     @OnClick(R.id.startGameButton)
     public void startNewGame(View view) {
@@ -87,7 +97,7 @@ public class OverviewActivity extends Activity implements GameFetcherListener {
             ServiceBuilder.setAccessToken(null);
             Intent intent = new Intent(this, LoginActivity.class);
             // Clear back stack so user can't go back to overview activity by using back button after logging out
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(intent);
             return true;
         }

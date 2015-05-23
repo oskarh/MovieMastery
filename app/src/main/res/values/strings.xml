@@ -18,5 +18,19 @@
     <string name="easy_adapter_link"><a href="https://github.com/ribot/easy-adapter">Easy Adapter</a></string>
     <string name="title_activity_previous_games">PreviousGamesActivity</string>
     <string name="title_activity_leaderboard">LeaderboardActivity</string>
+    <string name="main_menu">Main Menu</string>
+    <string name="question_set_liked">Question set liked</string>
+    <string name="question_set_disliked">Question set disliked</string>
+    <string name="faile_login_message">Failed to login, please try again</string>
+    <string name="username">username</string>
+    <string name="password">password</string>
+    <string name="login">Login\u0020\u0020\u0020\u0020</string>
+    <string name="next_question">Next Question</string>
+    <string name="new_game">New game</string>
+    <string name="previous_games">Previous games</string>
+    <string name="leaderboard">Leaderboard</string>
+
+    <string name="correct_answer">CORRECT!</string>
+    <string name="time_up_answer">TIME\'S UP!</string>
 
 </resources>

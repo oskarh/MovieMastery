@@ -14,7 +14,7 @@ android {
     }
     buildTypes {
         release {
-            runProguard false
+            minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
@@ -48,8 +48,6 @@ dependencies {
     compile 'org.apache.commons:commons-io:1.3.2'
     compile 'com.jakewharton:butterknife:6.0.0'
     compile 'uk.co.ribot:easyadapter:1.3.0@aar'
-    compile 'com.beardedhen:androidbootstrap:+'
-    compile('de.keyboardsurfer.android.widget:crouton:1.8.5@aar') {
-        exclude group: 'com.google.android', module: 'support-v4'
-    }
+    compile 'com.beardedhen:androidbootstrap:1.0.4'
+//    compile 'com.beardedhen:androidbootstrap:+'
 }

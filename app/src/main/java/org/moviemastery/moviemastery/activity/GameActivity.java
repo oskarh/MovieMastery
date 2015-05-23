@@ -2,20 +2,24 @@ package org.moviemastery.moviemastery.activity;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.graphics.Color;
-import android.graphics.Typeface;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.view.animation.DecelerateInterpolator;
+import android.view.animation.ScaleAnimation;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.beardedhen.androidbootstrap.BootstrapButton;
 import com.beardedhen.androidbootstrap.FontAwesomeText;
 
 import org.moviemastery.moviemastery.R;
+import org.moviemastery.moviemastery.callback.CountDownListener;
 import org.moviemastery.moviemastery.callback.CreateGameListener;
 import org.moviemastery.moviemastery.callback.QuestionFetcherListener;
 import org.moviemastery.moviemastery.repository.Game;
@@ -26,55 +30,43 @@ import org.moviemastery.moviemastery.service.SoundPlayerService;
 import org.moviemastery.moviemastery.task.CreateGameTask;
 import org.moviemastery.moviemastery.task.PostGameTask;
 import org.moviemastery.moviemastery.task.QuestionSetFetchTask;
-import org.moviemastery.moviemastery.task.UpdateRatingTask;
+import org.moviemastery.moviemastery.ui.QuestionResult;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.OnClick;
-import de.keyboardsurfer.android.widget.crouton.Crouton;
-import de.keyboardsurfer.android.widget.crouton.Style;
 import hugo.weaving.DebugLog;
 
-public class GameActivity extends Activity implements QuestionFetcherListener, CreateGameListener {
+public class GameActivity extends Activity implements QuestionFetcherListener, CreateGameListener, CountDownListener {
 
-    public static final int backgroundColor = 0xFFF1F1F1;
+    public static final int QUESTION_COUNT = 4;
 
-    @InjectView(R.id.movie1Label)
-    TextView movie1;
-
-    @InjectView(R.id.movie2Label)
-    TextView movie2;
-
-    @InjectView(R.id.movie3Label)
-    TextView movie3;
-
-    @InjectView(R.id.movie4Label)
-    TextView movie4;
-
-    @InjectView(R.id.explanationLabel)
-    TextView explanationLabel;
+    List<BootstrapButton> answerList;
 
     @InjectView(R.id.scoreLabel)
     TextView scoreLabel;
 
-    @InjectView(R.id.resultLabel)
-    TextView resultLabel;
+    @InjectView(R.id.floatingResult)
+    TextView floatingResult;
 
-    FontAwesomeText heart1;
+    private List<FontAwesomeText> heartList;
 
-    FontAwesomeText heart2;
+    @InjectView(R.id.progressBar)
+    ProgressBar progressBar;
 
-    FontAwesomeText heart3;
+    FontAwesomeText fiftyFiftyLifeLine;
 
-    FontAwesomeText likeButton;
+    FontAwesomeText timeExtensionLifeLine;
 
-    BootstrapButton nextQuestionButton;
+    FontAwesomeText skipQuestionLifeLine;
 
-    FontAwesomeText dislikeButton;
+    private BootstrapButton nextQuestionButton;
 
     private List<QuestionSet> questions;
 
@@ -82,9 +74,9 @@ public class GameActivity extends Activity implements QuestionFetcherListener, C
 
     private int currentQuestionIndex;
 
-    private boolean isQuestionAnswered = false;
+    private MyCountDownTimer myCountDownTimer;
 
-    private Animation fadeOut = new AlphaAnimation(1.0f, 0.0f);
+    private Animation fadeOut = new AlphaAnimation(1, 0);
 
     private CountDownLatch latch = new CountDownLatch(2);
 
@@ -92,15 +84,6 @@ public class GameActivity extends Activity implements QuestionFetcherListener, C
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_game);
-        ButterKnife.inject(this);
-        nextQuestionButton = (BootstrapButton) findViewById(R.id.nextQuestionButton);
-        likeButton = (FontAwesomeText) findViewById(R.id.likeButton);
-        dislikeButton = (FontAwesomeText) findViewById(R.id.dislikeButton);
-        heart1 = (FontAwesomeText) findViewById(R.id.heart1);
-        heart2 = (FontAwesomeText) findViewById(R.id.heart2);
-        heart3 = (FontAwesomeText) findViewById(R.id.heart3);
-        fadeOut.setDuration(1600);
         QuestionSetFetchTask task = new QuestionSetFetchTask(ServiceBuilder.getQuestionSetApi(), this);
         task.execute();
 
@@ -108,69 +91,108 @@ public class GameActivity extends Activity implements QuestionFetcherListener, C
             CreateGameTask gameTask = new CreateGameTask(ServiceBuilder.getGameServiceApi(), this);
             gameTask.execute();
         }
+        setContentView(R.layout.activity_game);
+        ButterKnife.inject(this);
+        nextQuestionButton = (BootstrapButton) findViewById(R.id.nextQuestionButton);
+        currentQuestionIndex = -1;
+        heartList = new ArrayList<FontAwesomeText>();
+        heartList.add((FontAwesomeText) findViewById(R.id.heart1));
+        heartList.add((FontAwesomeText) findViewById(R.id.heart2));
+        heartList.add((FontAwesomeText) findViewById(R.id.heart3));
+        fadeOut.setDuration(800);
+        fadeOut.setFillAfter(true);
+        answerList = new ArrayList<BootstrapButton>(QUESTION_COUNT);
+        answerList.add((BootstrapButton) findViewById(R.id.alternative1Button));
+        answerList.add((BootstrapButton) findViewById(R.id.alternative2Button));
+        answerList.add((BootstrapButton) findViewById(R.id.alternative3Button));
+        answerList.add((BootstrapButton) findViewById(R.id.alternative4Button));
+        fiftyFiftyLifeLine = (FontAwesomeText) findViewById(R.id.fiftyFiftyLifeLine);
+        timeExtensionLifeLine = (FontAwesomeText) findViewById(R.id.timeExtensionLifeLine);
+        skipQuestionLifeLine = (FontAwesomeText) findViewById(R.id.skipQuestionLifeLine);
+        myCountDownTimer = new MyCountDownTimer(this);
     }
 
     @DebugLog
-    @OnClick(R.id.movie1Label)
-    public void movie1Click(View view) {
-        handleLabelClick(view);
-    }
-
-    @DebugLog
-    @OnClick(R.id.movie2Label)
-    public void movie2Click(View view) {
-        handleLabelClick(view);
-    }
-
-    @DebugLog
-    @OnClick(R.id.movie3Label)
-    public void movie3Click(View view) {
-        handleLabelClick(view);
-    }
-
-    @DebugLog
-    @OnClick(R.id.movie4Label)
-    public void movie4Click(View view) {
-        handleLabelClick(view);
-    }
-
-    private void handleLabelClick(View view) {
+    @OnClick({R.id.alternative1Button, R.id.alternative2Button, R.id.alternative3Button, R.id.alternative4Button})
+    void handleLabelClick(BootstrapButton view) {
         // ignore buttonclick if the question has already been answered
-        if(isQuestionAnswered) {
-            return;
-        }
-        isQuestionAnswered = true;
-
-        int selectedTextColor;
-        int selectedIndex = getAnswerIndex(view);
+        inactivateButtons();
+        myCountDownTimer.cancel();
+        questions.get(currentQuestionIndex).setUserAnswer(answerList.indexOf(view));
+        String selectedButtonType;
+        int selectedIndex = answerList.indexOf(view);
         if(isCorrectAnswer(selectedIndex)) {
-            resultLabel.setText("Correct!");
-            selectedTextColor = Color.GREEN;
+            playFloatingAnimation(QuestionResult.CORRECT);
+            selectedButtonType = "success";
             scoreLabel.setText(String.valueOf(game.increaseScore()));
             playSound(SoundPlayerService.CHEERING);
         } else {
-            resultLabel.setText("Incorrect!");
-            selectedTextColor = Color.RED;
-            getAnswerIndexToView(questions.get(currentQuestionIndex).getCorrectAnswerIndex()).setBackgroundColor(Color.GREEN);
-            updateIncorrectAnswers(game.increaseIncorrectAnswer());
-            if (game.isGameOver()) {
-                QuizUserApi userApi = ServiceBuilder.getQuizUserApi();
-                PostGameTask gameTask = new PostGameTask(userApi, game);
-                gameTask.execute();
-                nextQuestionButton.setText("Main Menu");
-                playSound(SoundPlayerService.GAME_OVER);
-            } else {
-                playSound(SoundPlayerService.AW);
-            }
-
+            selectedButtonType = "danger";
+            updateGameState();
         }
-        explanationLabel.setText(questions.get(currentQuestionIndex).getExplanation());
-        showViews(likeButton, dislikeButton, resultLabel, explanationLabel, nextQuestionButton);
-        resultLabel.setTextSize(22);
-        resultLabel.setTypeface(null, Typeface.BOLD);
-        view.setBackgroundColor(selectedTextColor);
-        likeButton.setEnabled(true);
-        dislikeButton.setEnabled(true);
+        nextQuestionButton.setVisibility(View.VISIBLE);
+        hideViews(progressBar);
+        view.setBootstrapType(selectedButtonType);
+//        ((BootstrapButton) view).setBootstrapType(selectedButtonType);
+    }
+
+    private void playFloatingAnimation(QuestionResult result) {
+        switch (result) {
+            case CORRECT:
+                floatingResult.setTextColor(getResources().getColor(R.color.green));
+                floatingResult.setText(R.string.correct_answer);
+                playFloatingAnimation();
+                break;
+            case TIME_UP:
+                floatingResult.setTextColor(getResources().getColor(R.color.red));
+                floatingResult.setText(R.string.time_up_answer);
+                playFloatingAnimation();
+                break;
+        }
+    }
+
+    private void playFloatingAnimation() {
+        ScaleAnimation animation = new ScaleAnimation(1, 2, 1, 2, Animation.RELATIVE_TO_SELF, (float) 0.5, Animation.RELATIVE_TO_SELF, (float) 0.5);
+        animation.setInterpolator(new DecelerateInterpolator());
+        animation.setDuration(1500);
+        floatingResult.startAnimation(animation);
+    }
+
+    private void updateGameState() {
+        answerList.get(questions.get(currentQuestionIndex).getCorrectAnswerIndex()).setBootstrapType("success");
+        Animation blinkAnimation = AnimationUtils.loadAnimation(this, R.anim.blink_out);
+        FontAwesomeText heartToLose = heartList.get(game.increaseIncorrectAnswer());
+        heartToLose.startAnimation(blinkAnimation);
+
+        if (game.isGameOver()) {
+            Log.w("TAG", "Game finished " + game);
+            QuizUserApi userApi = ServiceBuilder.getQuizUserApi();
+            PostGameTask gameTask = new PostGameTask(userApi, game);
+            gameTask.execute();
+            nextQuestionButton.setText(getString(R.string.main_menu));
+            playSound(SoundPlayerService.GAME_OVER);
+        } else {
+            playSound(SoundPlayerService.AW);
+        }
+    }
+
+    private void inactivateButtons() {
+        for (BootstrapButton button : answerList) {
+            button.setClickable(false);
+        }
+        fiftyFiftyLifeLine.setClickable(false);
+        timeExtensionLifeLine.setClickable(false);
+        skipQuestionLifeLine.setClickable(false);
+    }
+
+    private void activateButtons() {
+        for (BootstrapButton button : answerList) {
+            button.setClickable(true);
+            button.setVisibility(View.VISIBLE);
+        }
+        fiftyFiftyLifeLine.setClickable(true);
+        timeExtensionLifeLine.setClickable(true);
+        skipQuestionLifeLine.setClickable(true);
     }
 
     private boolean isCorrectAnswer(int index) {
@@ -183,53 +205,32 @@ public class GameActivity extends Activity implements QuestionFetcherListener, C
         startService(soundIntent);
     }
 
-    private void updateIncorrectAnswers(int incorrectAnswerIndex) {
-        switch (incorrectAnswerIndex) {
-            case 1:
-                startFlashing(heart3, 3);
-                break;
-            case 2:
-                startFlashing(heart2, 3);
-                break;
-            case 3:
-                startFlashing(heart1, 3);
-                break;
-        }
-    }
-
     @DebugLog
     private void updateQuestion() {
-        Animation fadeIn = new AlphaAnimation(0, 1);
-        fadeIn.setDuration(1600);
-        QuestionSet currentQuestion = this.questions.get(currentQuestionIndex);
-        isQuestionAnswered = false;
+        currentQuestionIndex++;
+        activateButtons();
         game.addQuestion(questions.get(currentQuestionIndex));
-        hideViews(likeButton, dislikeButton, resultLabel, explanationLabel, nextQuestionButton);
-        movie1.setText(currentQuestion.getAlternatives().get(0));
-        movie1.setBackgroundColor(backgroundColor);
-        movie1.startAnimation(fadeIn);
-        movie2.setText(currentQuestion.getAlternatives().get(1));
-        movie2.setBackgroundColor(backgroundColor);
-        movie2.startAnimation(fadeIn);
-        movie3.setText(currentQuestion.getAlternatives().get(2));
-        movie3.setBackgroundColor(backgroundColor);
-        movie3.startAnimation(fadeIn);
-        movie4.setText(currentQuestion.getAlternatives().get(3));
-        movie4.setBackgroundColor(backgroundColor);
-        movie4.startAnimation(fadeIn);
+        hideViews(nextQuestionButton);
+        progressBar.setVisibility(View.VISIBLE);
+        updateQuestionButtons();
+        progressBar.setProgress(100);
+        myCountDownTimer.reset();
+    }
+
+    private void updateQuestionButtons() {
+//        Animation fadeIn = AnimationUtils.loadAnimation(this, R.anim.fade_in);
+        QuestionSet currentQuestion = this.questions.get(currentQuestionIndex);
+        for (int i = 0; i < answerList.size(); i++) {
+            BootstrapButton answerView = answerList.get(i);
+            answerView.setText(currentQuestion.getAlternatives().get(i));
+            answerView.setBootstrapType("primary");
+        }
     }
 
     @DebugLog
     private void hideViews(View... views) {
         for(View view : views) {
             view.setVisibility(View.INVISIBLE);
-        }
-    }
-
-    @DebugLog
-    private void showViews(View... views) {
-        for(View view : views) {
-            view.setVisibility(View.VISIBLE);
         }
     }
 
@@ -265,75 +266,61 @@ public class GameActivity extends Activity implements QuestionFetcherListener, C
     public void onQuestionsReceived(Collection<QuestionSet> questions) {
         currentQuestionIndex = 0;
         this.questions = (List<QuestionSet>) questions;
-        movie1.setEnabled(true);
-        movie2.setEnabled(true);
-        movie3.setEnabled(true);
-        movie4.setEnabled(true);
+        for (BootstrapButton answer : answerList) {
+            answer.setEnabled(true);
+        }
         latch.countDown();
     }
 
     @DebugLog
-    @OnClick(R.id.likeButton)
-    public void likeButtonClicked(View view) {
-        Crouton.makeText(this, "Question set liked", Style.CONFIRM).show();
-        questions.get(currentQuestionIndex).increaseRating();
-        likeButton.setEnabled(false);
-        dislikeButton.setEnabled(false);
-        new UpdateRatingTask(ServiceBuilder.getQuestionSetTemplateApi(), questions.get(currentQuestionIndex).getQuestionSetTemplateId(), true).execute();
+    @OnClick(R.id.fiftyFiftyLifeLine)
+    public void fiftyFiftyLifeLineClicked(View view) {
+        List<Integer> questionAlts = getIncorrectQuestionsShuffled();
+        answerList.get(questionAlts.get(0)).setVisibility(View.INVISIBLE);
+        answerList.get(questionAlts.get(0)).setClickable(false);
+        answerList.get(questionAlts.get(1)).setVisibility(View.INVISIBLE);
+        answerList.get(questionAlts.get(1)).setClickable(false);
+        fiftyFiftyLifeLine.setVisibility(View.INVISIBLE);
+    }
+
+    private List<Integer> getIncorrectQuestionsShuffled() {
+        List<Integer> questionAlts = new ArrayList<Integer>(QUESTION_COUNT);
+        for (int i = 0; i < QUESTION_COUNT; i++) {
+            questionAlts.add(i);
+        }
+        questionAlts.remove(questions.get(currentQuestionIndex).getCorrectAnswerIndex());
+        Collections.shuffle(questionAlts);
+        return questionAlts;
     }
 
     @DebugLog
-    @OnClick(R.id.dislikeButton)
-    public void dislikeButtonClicked(View view) {
-        Crouton.makeText(this, "Question set disliked", Style.CONFIRM).show();
-        questions.get(currentQuestionIndex).decreaseRating();
-        likeButton.setEnabled(false);
-        dislikeButton.setEnabled(false);
-        new UpdateRatingTask(ServiceBuilder.getQuestionSetTemplateApi(), questions.get(currentQuestionIndex).getQuestionSetTemplateId(), false).execute();
+    @OnClick(R.id.timeExtensionLifeLine)
+    public void timeExtensionLifeLineClicked(View view) {
+        timeExtensionLifeLine.setVisibility(View.INVISIBLE);
+        myCountDownTimer.reset();
+    }
+
+    @DebugLog
+    @OnClick(R.id.skipQuestionLifeLine)
+    public void skipQuestionLifeLineClicked(View view) {
+        skipQuestionLifeLine.setVisibility(View.INVISIBLE);
+        questions.get(currentQuestionIndex).setUserAnswer(QuestionSet.SKIPPED_QUESTION);
+        updateQuestion();
     }
 
     @DebugLog
     @OnClick(R.id.nextQuestionButton)
     public void nextQuestionClicked(View view) {
         if(!game.isGameOver()) {
-            currentQuestionIndex++;
             updateQuestion();
         } else {
-            Intent intent = new Intent(this, OverviewActivity.class);
-            Intent startedIntent = getIntent();
-            if (startedIntent != null && startedIntent.getExtras() != null) {
-                intent.putExtra(LoginActivity.USERNAME, startedIntent.getExtras().getString(LoginActivity.USERNAME));
-            }
-            startActivity(intent);
-        }
-    }
-
-    private int getAnswerIndex(View view) {
-        if(view == movie1) {
-            return 0;
-        } else if(view == movie2) {
-            return 1;
-        } else if(view == movie3) {
-            return 2;
-        } else if(view == movie4) {
-            return 3;
-        } else {
-            return -1;
-        }
-    }
-
-    private View getAnswerIndexToView(int index) {
-        switch(index) {
-            case 0:
-                return movie1;
-            case 1:
-                return movie2;
-            case 2:
-                return movie3;
-            case 3:
-                return movie4;
-            default:
-                return null;
+            finish();
+//            Intent intent = new Intent(this, OverviewActivity.class);
+//            Intent startedIntent = getIntent();
+//            if (startedIntent != null && startedIntent.getExtras() != null) {
+//                intent.putExtra(LoginActivity.USERNAME, startedIntent.getExtras().getString(LoginActivity.USERNAME));
+//            }
+//            startActivity(intent);
         }
     }
 
@@ -352,66 +339,23 @@ public class GameActivity extends Activity implements QuestionFetcherListener, C
     }
 
     @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        Crouton.cancelAllCroutons();
+    public void onTick(int percentLeft) {
+        progressBar.setProgress(percentLeft);
     }
 
-    @DebugLog
-    public void startFlashing(final View view, int repeatCount)
-    {
-        final Animation fadeIn = new AlphaAnimation(0, 1);
+    @Override
+    public void onFinished() {
+        playFloatingAnimation(QuestionResult.TIME_UP);
+        progressBar.setVisibility(View.INVISIBLE);
+        questions.get(currentQuestionIndex).setUserAnswer(QuestionSet.TIMED_OUT);
+        inactivateButtons();
+        updateGameState();
+        nextQuestionButton.setVisibility(View.VISIBLE);
+    }
 
-        //set up extra variables
-        fadeIn.setDuration(200);
-        fadeIn.setRepeatMode(Animation.REVERSE);
-
-        //default repeat count is 0, however if user wants, set it up to be infinite
-        fadeIn.setRepeatCount(repeatCount);
-
-        fadeIn.setStartOffset(200);
-
-        final Animation fadeOut = new AlphaAnimation(1, 0);
-        fadeOut.setDuration(200);
-        fadeOut.setStartOffset(200);
-
-        //set the new animation to a final animation
-        fadeIn.setAnimationListener(new Animation.AnimationListener() {
-
-            @Override
-            public void onAnimationStart(Animation animation) {
-            }
-
-            @Override
-            public void onAnimationRepeat(Animation animation) {
-            }
-
-            @Override
-            public void onAnimationEnd(Animation animation) {
-                view.startAnimation(fadeOut);
-            }
-        });
-
-        fadeOut.setAnimationListener(new Animation.AnimationListener() {
-            @Override
-            public void onAnimationStart(Animation animation) {
-            }
-
-            @Override
-            public void onAnimationEnd(Animation animation) {
-                view.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        view.setVisibility(View.INVISIBLE);
-                    }
-                });
-            }
-
-            @Override
-            public void onAnimationRepeat(Animation animation) {
-            }
-        });
-
-        view.startAnimation(fadeIn);
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // pause myCountdownTimer here
     }
 }

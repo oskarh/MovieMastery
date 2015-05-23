@@ -8,7 +8,9 @@ import hugo.weaving.DebugLog;
 
 public class QuestionSet {
 
-    public static final int NO_ANSWER = -1;
+    public static final int NO_ANSWER = -3;
+    public static final int TIMED_OUT = -2;
+    public static final int SKIPPED_QUESTION = -1;
 	
 	private long id;
 	

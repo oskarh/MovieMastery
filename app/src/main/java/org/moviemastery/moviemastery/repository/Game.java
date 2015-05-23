@@ -56,7 +56,7 @@ public class Game {
     }
 
     public int increaseIncorrectAnswer() {
-        return ++incorrectAnswers;
+        return incorrectAnswers++;
     }
 
     public boolean isGameOver() {

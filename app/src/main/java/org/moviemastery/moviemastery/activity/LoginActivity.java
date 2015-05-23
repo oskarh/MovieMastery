@@ -1,9 +1,14 @@
 package org.moviemastery.moviemastery.activity;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Pair;
+import android.view.animation.Animation;
+import android.view.animation.ScaleAnimation;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import org.moviemastery.moviemastery.R;
@@ -12,6 +17,7 @@ import org.moviemastery.moviemastery.callback.LoginListener;
 import org.moviemastery.moviemastery.service.QuizUserApi;
 import org.moviemastery.moviemastery.service.ServiceBuilder;
 import org.moviemastery.moviemastery.task.LoginTask;
+import org.moviemastery.moviemastery.task.ServletPostAsyncTask;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
@@ -32,12 +38,23 @@ public class LoginActivity extends Activity implements LoginListener{
     @InjectView(R.id.passwordText)
     EditText passwordText;
 
+    @InjectView(R.id.movieMasteryLabel)
+    ImageView logo;
+
     @DebugLog
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
         ButterKnife.inject(this);
+        new ServletPostAsyncTask().execute(new Pair<Context, String>(this, "Flaming-Goose"));
+        animateLogo();
+    }
+
+    private void animateLogo() {
+        ScaleAnimation animation = new ScaleAnimation(1.15f, 1, 1.15f, 1, Animation.RELATIVE_TO_SELF, (float)0.5, Animation.RELATIVE_TO_SELF, (float)0.5);
+        animation.setDuration(1700);
+        logo.startAnimation(animation);
     }
 
     @DebugLog
@@ -62,7 +79,7 @@ public class LoginActivity extends Activity implements LoginListener{
     public void onError(Exception exception) {
         runOnUiThread(new Runnable() {
             public void run() {
-                Toast.makeText(LoginActivity.this, "Failed to login, please try again", Toast.LENGTH_LONG).show();
+                Toast.makeText(LoginActivity.this, getString(R.string.faile_login_message), Toast.LENGTH_LONG).show();
             }
         });
     }

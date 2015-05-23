@@ -1,54 +1,57 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
     xmlns:bootstrapbutton="http://schemas.android.com/apk/res-auto"
-    android:layout_height="match_parent" android:paddingLeft="@dimen/activity_horizontal_margin"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center|center_horizontal|fill_vertical"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    android:gravity="center|center_horizontal|fill_vertical"
-    android:paddingBottom="@dimen/activity_vertical_margin" tools:context=".LoginActivity">
+    tools:context=".LoginActivity">
 
-    <TextView android:text="Movie Mastery" android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+    <ImageView
         android:id="@+id/movieMasteryLabel"
-        android:layout_marginTop="50dp"
-        android:textStyle="bold"
-        android:textSize="30sp"
-        android:layout_alignParentTop="true" />
-
-    <com.beardedhen.androidbootstrap.BootstrapButton
-        android:layout_width="wrap_content"
+        android:layout_width="200dp"
         android:layout_height="wrap_content"
-        android:text="Login        "
-        android:id="@+id/loginButton"
-        bootstrapbutton:bb_type="primary"
-        bootstrapbutton:bb_roundedCorners="true"
-        bootstrapbutton:bb_icon_left="fa-sign-in"
-        android:layout_below="@+id/passwordText"
-        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
         android:layout_marginTop="20dp"
-        android:layout_alignEnd="@+id/passwordText" />
+        android:src="@drawable/movie_mastery_new" />
 
     <EditText
+        android:id="@+id/usernameText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/usernameText"
-        android:layout_marginTop="60dp"
-        android:layout_alignParentStart="true"
         android:layout_alignEnd="@+id/movieMasteryLabel"
-        android:hint="username"
+        android:layout_alignParentStart="true"
+        android:layout_marginTop="40dp"
         android:layout_below="@+id/movieMasteryLabel"
+        android:textColor="@color/white"
+        android:hint="@string/username"
         android:text="mike" />
 
     <EditText
+        android:id="@+id/passwordText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:inputType="textPassword"
-        android:ems="10"
-        android:id="@+id/passwordText"
-        android:layout_alignParentStart="true"
         android:layout_alignEnd="@+id/usernameText"
-        android:hint="password"
+        android:layout_alignParentStart="true"
         android:layout_below="@+id/usernameText"
-        android:text="pass"/>
+        android:ems="10"
+        android:hint="@string/password"
+        android:textColor="@color/white"
+        android:inputType="textPassword"
+        android:text="pass" />
+
+    <com.beardedhen.androidbootstrap.BootstrapButton
+        android:id="@+id/loginButton"
+        style="@style/default_button"
+        android:layout_width="wrap_content"
+        android:layout_alignEnd="@+id/passwordText"
+        android:layout_alignParentStart="true"
+        android:layout_below="@+id/passwordText"
+        android:layout_marginTop="20dp"
+        android:text="@string/login"
+        bootstrapbutton:bb_icon_left="fa-sign-in" />
 
 </RelativeLayout>
